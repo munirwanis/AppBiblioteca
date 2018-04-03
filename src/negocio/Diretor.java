@@ -5,6 +5,15 @@ public class Diretor {
 	 private int anoInicioCargo, anoFimCargo;
 	 private Contato contato;
 	 
+	 public void exibir() {
+		 System.out.printf(
+				 "%s %s %d %d",
+				 this.getNome(),
+				 this.getCpf(),
+				 this.getAnoInicioCargo(),
+				 this.getAnoFimCargo());
+	 }
+	 
 	public String getNome() {
 		return nome;
 	}

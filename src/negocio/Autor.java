@@ -41,6 +41,10 @@ public class Autor {
 
 	public void exibir() {
 		System.out.printf(this.obterConteudo());
+		
+		if (this.getContato() != null) {
+			this.getContato().exibir();	
+		}
 	}
 	
 	public String obterConteudo() {

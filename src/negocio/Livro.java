@@ -81,11 +81,26 @@ public class Livro {
 		return autores;
 	}
 
+	public Autor buscarAutor(String nome) {
+		for (Autor autor : this.getAutores()) {
+			 if (autor.getNome().toUpperCase().contains(nome.toUpperCase())) {
+				 return autor;
+			 }
+		}
+		return null;
+	}
+	
 	public void adicionar(Autor autor) {
 		this.autores.add(autor);
 	}
 	
 	public void remover(String nome) {
-		
+		Autor autor = this.buscarAutor(nome);
+		if (autor != null) {
+			this.getAutores().remove(autor);
+			System.out.println("Autor removido com sucesso!");
+		} else {
+			System.out.println("Autor não encontrado.");
+		}
 	}
 }

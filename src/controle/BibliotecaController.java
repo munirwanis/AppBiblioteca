@@ -1,5 +1,7 @@
 package controle;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -19,19 +21,27 @@ public class BibliotecaController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private Biblioteca biblioteca;
 	private Livro livro;
+	private int qtdeMalote;
+	private FileWriter file;
+	private BufferedWriter escritor;
+	private String arquivo;
+
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public BibliotecaController() {
         super();
-        // TODO Auto-generated constructor stub
+        qtdeMalote = 0;
+        arquivo = "";
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		qtdeMalote--;
+		
 		livro = new Livro();
 		livro.setTitulo(request.getParameter("titulo"));
 		livro.setEditora(request.getParameter("editora"));
@@ -52,7 +62,11 @@ public class BibliotecaController extends HttpServlet {
 		
 		biblioteca.exibir();
 		
-		impressaoHTML(response);
+		if ("S".equals(request.getParameter("impressao"))) {
+			biblioteca.exibir();
+		}
+		
+		this.impressaoHTML(qtdeMalote == 0, response);
 	}
 
 	/**
@@ -64,58 +78,108 @@ public class BibliotecaController extends HttpServlet {
 		biblioteca.setEmail(request.getParameter("email"));
 		biblioteca.setUf(request.getParameter("uf"));
 		
+		qtdeMalote = Integer.valueOf(request.getParameter("qtde"));
+		
 		impressaoHTML(response);
+		
+		arquivo = String.format("C:\\%s_%s.txt", biblioteca.getNome(), qtdeMalote);
+		try {
+			file = new FileWriter(arquivo);
+			escritor = new BufferedWriter(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
+	
 	private void impressaoHTML(HttpServletResponse response) throws IOException {
+		impressaoHTML(false, response);
+	}
+	
+	private void impressaoHTML(boolean impressaoMalote, HttpServletResponse response) throws IOException {
 		PrintWriter out = response.getWriter();
-		out.println(
-				  "<html>"
-				+ "<head>"
-				+ "<meta charset='ISO-8859-1'>"
-				+ "<title>Sistema de Gerenciamento de Bibliotecas</title>"
-				+ "</head>"
-				+ "<body>"
-				+ "	<form action='BibliotecaController' method='get'>"
-				+ "		<input type='submit' value='Registrar'>"
-				+ "		<hr>"
-				+ "		<h3>"
-				+ 			biblioteca.getNome()
-				+			" - " 
-				+ 			biblioteca.getEmail() 
-				+ 			" - " 
-				+ 			biblioteca.getUf() 
-				+ "  	</h3>"
-				+ "		<hr>"
-				+ "		<fieldset>"
-				+ "			<legend>Livro</legend>"
-				+ "			<h3>Título</h3>"
-				+ "			<input type='text' name='titulo'>"
-				+ "			<h3>Editora</h3>"
-				+ "			<input type='text' name='editora'>"
-				+ "			<h3>Ano</h3>"
-				+ "			<input type='number' name='ano'>"
-				+ "		</fieldset>"
-				+ "		<fieldset>"
-				+ "			<legend>Primeiro Autor</legend>"
-				+ "			<h3>Nome</h3>"
-				+ "			<input type='text' name='nome1'>"
-				+ "			<h3>Sobrenome</h3>"
-				+ "			<input type='text' name='sobrenome1'>"
-				+ "		</fieldset>"
-				+ "		<fieldset>"
-				+ "			<legend>Segundo Autor</legend>"
-				+ "			<h3>Nome</h3>"
-				+ "			<input type='text' name='nome2'>"
-				+ "			<h3>Sobrenome</h3>"
-				+ "			<input type='text' name='sobrenome2'>"
-				+ "		</fieldset>"
-				+ "	</form>"
-				+ "	<form action='biblioteca.html'>"
-				+ "		<input type='submit' value='Voltar'>"
-				+ "	</form>"
-				+ "</body>"
-				+ "</html>");
+		
+		if (impressaoMalote) {
+			escritor.write(biblioteca.obterConteudo());
+			escritor.flush();
+			escritor.close();
+			
+			out.println(
+					  "<html>"
+					+ "<head>"
+					+ "<meta charset='ISO-8859-1'>"
+					+ "<title>Sistema de Gerenciamento de Bibliotecas</title>"
+					+ "</head>"
+					+ "<body>"
+					+ "	<form action='biblioteca.html' method='get'>"
+					+ "		<input type='submit' value='Finalizar'>"
+					+ "		<hr>"
+					+ "		<h3>"
+					+ 			biblioteca.getNome()
+					+			" - " 
+					+ 			biblioteca.getEmail() 
+					+ 			" - " 
+					+ 			biblioteca.getUf() 
+					+ "  	</h3>"
+					+ "		<hr>"
+					+ "		<h2>O arquivo " + arquivo + " foi criado com sucesso.</h2>"
+					+ "	</form>"
+					+ "<input type='checkbox' value='S' name='impressao'>"
+					+ "	<form action='biblioteca.html'>"
+					+ "		<input type='submit' value='Voltar'>"
+					+ "	</form>"
+					+ "</body>"
+					+ "</html>");
+		} else {
+			out.println(
+					  "<html>"
+					+ "<head>"
+					+ "<meta charset='ISO-8859-1'>"
+					+ "<title>Sistema de Gerenciamento de Bibliotecas</title>"
+					+ "</head>"
+					+ "<body>"
+					+ "	<form action='BibliotecaController' method='get'>"
+					+ "		<input type='submit' value='Registrar'>"
+					+ "		<hr>"
+					+ "		<h3>"
+					+ 			biblioteca.getNome()
+					+			" - " 
+					+ 			biblioteca.getEmail() 
+					+ 			" - " 
+					+ 			biblioteca.getUf() 
+					+ "  	</h3>"
+					+ "		<hr>"
+					+ "		<fieldset>"
+					+ "			<legend>Livro</legend>"
+					+ "			<h3>Título</h3>"
+					+ "			<input type='text' name='titulo'>"
+					+ "			<h3>Editora</h3>"
+					+ "			<input type='text' name='editora'>"
+					+ "			<h3>Ano</h3>"
+					+ "			<input type='number' name='ano'>"
+					+ "		</fieldset>"
+					+ "		<fieldset>"
+					+ "			<legend>Primeiro Autor</legend>"
+					+ "			<h3>Nome</h3>"
+					+ "			<input type='text' name='nome1'>"
+					+ "			<h3>Sobrenome</h3>"
+					+ "			<input type='text' name='sobrenome1'>"
+					+ "		</fieldset>"
+					+ "		<fieldset>"
+					+ "			<legend>Segundo Autor</legend>"
+					+ "			<h3>Nome</h3>"
+					+ "			<input type='text' name='nome2'>"
+					+ "			<h3>Sobrenome</h3>"
+					+ "			<input type='text' name='sobrenome2'>"
+					+ "		</fieldset>"
+					+ "	</form>"
+					+ "<input type='checkbox' value='S' name='impressao'>"
+					+ "	<form action='biblioteca.html'>"
+					+ "		<input type='submit' value='Voltar'>"
+					+ "	</form>"
+					+ "</body>"
+					+ "</html>");
+		}
 	}
 
 }

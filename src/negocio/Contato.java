@@ -3,6 +3,15 @@ package negocio;
 public class Contato {
 	private String email, whatsapp, facebook, telefone;
 
+	public void exibir() {
+		System.out.printf(
+				"%s %s %s %s\n",
+				this.getEmail(),
+				this.getWhatsapp(),
+				this.getFacebook(),
+				this.getTelefone());
+	}
+	
 	public String getEmail() {
 		return email;
 	}

@@ -32,6 +32,10 @@ public class Biblioteca {
 	
 	public void exibir() {
 		System.out.printf(this.obterConteudo());
+		
+		if (this.getDiretor() != null) {
+			this.getDiretor().exibir();			
+		}
 	}
 	
 	public String obterConteudo() {
@@ -48,7 +52,7 @@ public class Biblioteca {
 				livros
 				);
 	}
-
+	
 	public Diretor getDiretor() {
 		return diretor;
 	}
@@ -90,10 +94,21 @@ public class Biblioteca {
 	}
 	
 	public Livro buscarLivro(String titulo) {
+		for (Livro livro : this.getCatalogo()) {
+			if (livro.getTitulo().toUpperCase().contains(titulo.toUpperCase())) {
+				return livro;
+			}
+		}
 		return null;
 	}
 	
 	public void remover(String titulo) {
-		
+		Livro livro = this.buscarLivro(titulo);
+		if (livro != null) {
+			this.getCatalogo().remove(livro);
+			System.out.println("Livro removido com sucesso!");
+		} else {
+			System.out.println("Livro não encontrado.");
+		}
 	}
 }
